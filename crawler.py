@@ -52,7 +52,8 @@ class crawler(object):
         self._word_id_cache = {}   # The lexicon map<String, Integer>: "word" -> word_id
 
         # Newly added data structures
-        self._doc_index = {}       # map<Integer, Dict<String, str>>: doc_id -> {"url": str, "title": str, "desc": str}
+        self._doc_index = {}       # map<Integer, Dict<String, str>>: 
+                                   # doc_id -> {"url": str, "title": str, "desc": str}
         self._inverted_index = {}  # map<Integer, Integer>: word_id -> set(int doc_id)
 
         # functions to call when entering and exiting specific tags
@@ -138,7 +139,8 @@ class crawler(object):
         return ret_id
 
     def word_id(self, word):
-        """Get the word id of some specific word."""
+        """Get the word id of a specific word."""
+        # check cache first
         if word in self._word_id_cache:
             return self._word_id_cache[word]
 
@@ -152,7 +154,8 @@ class crawler(object):
         return word_id
 
     def document_id(self, url):
-        """Get the document id for some url."""
+        """Get the document id for an url."""
+        # check cache first
         if url in self._doc_id_cache:
             return self._doc_id_cache[url]
 
@@ -162,6 +165,14 @@ class crawler(object):
 
         doc_id = self._mock_insert_document(url)
         self._doc_id_cache[url] = doc_id
+
+        # Initialize _doc_index entry for this document(url)
+        self._doc_index[doc_id] = {
+            "url": url,
+            "title": "",
+            "desc": ""
+        }
+        
         return doc_id
 
     def _fix_url(self, curr_url, rel):
@@ -341,7 +352,7 @@ class crawler(object):
     def get_inverted_index(self):
         return self._inverted_index
     
-    
+
     # Required function 2:
     def get_resolved_inverted_index(self):
         # todo: return a map of words -> set(urls)
