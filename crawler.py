@@ -47,9 +47,13 @@ class crawler(object):
     def __init__(self, db_conn, url_file):
         """Initialize the crawler with a connection to the database to populate
         and with the file containing the list of seed URLs to begin indexing."""
-        self._url_queue = []
-        self._doc_id_cache = {}
-        self._word_id_cache = {}
+        self._url_queue = []       # Queue of URLs to crawl
+        self._doc_id_cache = {}    # map<String, Integer>: "url" -> doc_id
+        self._word_id_cache = {}   # The lexicon map<String, Integer>: "word" -> word_id
+
+        # Newly added data structures
+        self._doc_index = {}       # map<Integer, Dict<String, str>>: doc_id -> {"url": str, "title": str, "desc": str}
+        self._inverted_index = {}  # map<Integer, Integer>: word_id -> set(int doc_id)
 
         # functions to call when entering and exiting specific tags
         self._enter = defaultdict(lambda *a, **ka: self._visit_ignore)
@@ -273,12 +277,12 @@ class crawler(object):
 
                 # ignore this tag and everything in it
                 if tag_name in self._ignored_tags:
-                    if tag.nextSibling:
-                        tag = NextTag(tag.nextSibling)
+                    if tag.next_sibling:
+                        tag = NextTag(tag.next_sibling)
                     else:
                         self._exit[stack[-1].name.lower()](stack[-1])
                         stack.pop()
-                        tag = NextTag(tag.parent.nextSibling)
+                        tag = NextTag(tag.parent.next_sibling)
 
                     continue
 
@@ -331,6 +335,17 @@ class crawler(object):
             finally:
                 if socket:
                     socket.close()
+
+
+    # Required function 1:
+    def get_inverted_index(self):
+        return self._inverted_index
+    
+    
+    # Required function 2:
+    def get_resolved_inverted_index(self):
+        # todo: return a map of words -> set(urls)
+        pass
 
 
 if __name__ == "__main__":
