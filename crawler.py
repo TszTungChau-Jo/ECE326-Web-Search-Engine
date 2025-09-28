@@ -165,14 +165,6 @@ class crawler(object):
 
         doc_id = self._mock_insert_document(url)
         self._doc_id_cache[url] = doc_id
-
-        # Initialize _doc_index entry for this document(url)
-        self._doc_index[doc_id] = {
-            "url": url,
-            "title": "",
-            "desc": ""
-        }
-        
         return doc_id
 
     def _fix_url(self, curr_url, rel):
@@ -199,6 +191,9 @@ class crawler(object):
         print("document title=" + repr(title_text))
 
         # TODO update document title for document id self._curr_doc_id
+        # save the document titile to the doc index for this page
+        if self._curr_doc_id in self._doc_index:
+            self._doc_index[self._curr_doc_id]["title"] = title_text
 
     def _visit_a(self, elem):
         """Called when visiting <a> tags."""
@@ -324,6 +319,13 @@ class crawler(object):
                 continue
 
             seen.add(doc_id)  # mark this document as haven't been visited
+            
+            # Initialize a new _doc_index entry for this document(url)
+            self._doc_index[doc_id] = {
+                "url": url,
+                "title": "",
+                "desc": ""
+            }
 
             socket = None
             try:
@@ -361,4 +363,9 @@ class crawler(object):
 
 if __name__ == "__main__":
     bot = crawler(None, "urls.txt")
-    bot.crawl(depth=1)
+    bot.crawl(depth=0)
+
+    # quick debug: print document index
+    print("\nDoc Index after crawl:")
+    for doc_id, info in bot._doc_index.items():
+        print(doc_id, info)
