@@ -1,0 +1,50 @@
+
+
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>Cat Search</title>
+</head>
+
+<body style="text-align:center;font-family:Arial,sans-serif;margin-top:100px;">
+	
+	<h1>Cat Search 🔍</h1>
+	<p style="color:gray;">A simple search engine for fun!</p>
+	
+	<!-- Add id to form and input -->
+	<form id="searchForm">
+		<input id="query" name="query" type="text" placeholder="Type your search here" size="40">
+    	<button type="submit">Search</button>
+  	</form>
+	
+	<div id="result"></div>
+
+	<!-- Build in JS -->
+	<script>
+    	document.getElementById("searchForm").addEventListener("submit", function(e) {
+      	e.preventDefault();
+
+      	let query = document.getElementById("query").value.trim();
+      	if (!query) { document.getElementById("result").innerHTML = ""; return; }
+
+      	// drop the quotes (comma etc,), separate with white space only
+      	const words = query.replace(/[^\w\s]/g, " ").split(/\s+/);
+
+      	const counts = {};
+      	for (let w of words) {
+        	const word = w.toLowerCase();
+        	counts[word] = (counts[word] || 0) + 1;
+      	}
+
+      	let output = `<p>Search for: "${query}"</p><h3>Word Count</h3><ul>`;
+      	for (const word in counts) {
+        	output += `<li>${word}: ${counts[word]}</li>`;
+      	}
+      	output += "</ul>";
+      	document.getElementById("result").innerHTML = output;
+    	});
+  	</script>
+
+</body>
+</html>
