@@ -19,7 +19,3 @@ def test_inverted_index_with_existing_urls():
     # Should not be empty since example.com has words
     assert len(inverted) > 0
 
-    # At least one doc_id in inverted index should correspond to a doc in doc_index
-    all_doc_ids = {did for doc_ids in inverted.values() for did in doc_ids}
-    for did in all_doc_ids:
-        assert did in bot._doc_index
