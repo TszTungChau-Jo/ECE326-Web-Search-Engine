@@ -218,6 +218,24 @@ class crawler(object):
         # TODO: knowing self._curr_doc_id and the list of all words and their
         #       font sizes (in self._curr_words), add all the words into the
         #       database for this document
+
+        # ignore databse connection from now
+        # focusing on building the inverted index and doc index in memory
+
+        # 1) check if no words found
+        if not self._curr_words:
+            print("    num words=0")
+            return
+        
+        #2) "remove" duplicate words in self._curr_words []
+        unique_word_ids = {wid for (wid, _) in self._curr_words}
+
+        # 3) add words to inverted index
+        for wid in unique_word_ids:
+            if wid not in self._inverted_index:
+                self._inverted_index[wid] = set()
+            self._inverted_index[wid].add(self._curr_doc_id)
+
         print("    num words=" + str(len(self._curr_words)))
 
     def _increase_font_factor(self, factor):
@@ -352,7 +370,8 @@ class crawler(object):
 
     # Required function 1:
     def get_inverted_index(self):
-        return self._inverted_index
+        # todo: return a map of word_id -> set(doc_ids)
+        return {wid: set(doc_ids) for wid, doc_ids in self._inverted_index.items()}
     
 
     # Required function 2:
@@ -369,3 +388,27 @@ if __name__ == "__main__":
     print("\nDoc Index after crawl:")
     for doc_id, info in bot._doc_index.items():
         print(doc_id, info)
+
+    # debug: print doc id cache
+    print("\nDoc ID Cache:")
+    for url, doc_id in bot._doc_id_cache.items():
+        print(url, "->", doc_id)
+
+    # debug: print word id cache (lexicon)
+    print("\nWord ID Cache:")
+    for word, word_id in bot._word_id_cache.items():
+        print(word, "->", word_id)
+
+    # debug: print inverted index
+    print("\nSizes:",
+      "lexicon(words) =", len(bot._word_id_cache),
+      "inverted_index terms =", len(bot._inverted_index))
+    #for wid, doc_ids in list(bot._inverted_index.items())[:5]:
+    for wid, doc_ids in sorted(bot._inverted_index.items()):
+        print(wid, "->", sorted(doc_ids))
+
+    # get inverted index using required function
+    print("\nInverted Index from get_inverted_index():")
+    inverted_index = bot.get_inverted_index()
+    print("Inverted Index:", inverted_index)
+
