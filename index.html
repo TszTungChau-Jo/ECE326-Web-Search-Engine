@@ -3,97 +3,101 @@
 <head>
   <meta charset="UTF-8">
   <title>Cat Search</title>
+  <style>
+    body { text-align:center; font-family:Arial, sans-serif; margin-top: 80px; }
+    table { margin: 0 auto; border-collapse: collapse; }
+    td { border: 1px solid #ccc; padding: 4px 8px; }
+  </style>
 </head>
 
-<body style="text-align:center;font-family:Arial,sans-serif;margin-top:100px;">
+<!-- Main body of the Web -->
+<body>
+
+  <!-- F1: name and hello -->
   <h1>Cat Search 🔍</h1>
   <p style="color:gray;">A simple search engine for fun!</p>
 
-  <!-- Keep the same form and input -->
-  <form id="searchForm">
-    <input id="query" name="query" type="text" placeholder="Type your search here" size="40">
+  <!-- F5 and F1: GET at root, input name MUST be "keywords" and type MUST be "text" -->
+  <form id="searchForm" method="get" action="/">
+    <input id="keywords" name="keywords" type="text" placeholder="Type your search here" size="40">
     <button type="submit">Search</button>
   </form>
 
   <div id="result"></div>
 
-  <!-- Built-in JS -->
+  <!-- JS Script -->
   <script>
-  // Global in-memory history since the page (server) was launched.
-  const historyCounts = {};
-
-  // Simple HTML escaping so punctuation like <, >, & show correctly
-  function escapeHTML(s) {
-    return s.replace(/[&<>"']/g, m => (
-      { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[m]
-    ));
-  }
-
-  document.getElementById("searchForm").addEventListener("submit", function (e) {
-    e.preventDefault();
-
-    const queryEl = document.getElementById("query");
-    const raw = (queryEl.value || "");
-    const query = raw.trim();
-
-    // Tokenization:
-    // - Use \w+|[^\w\s] so punctuation becomes standalone tokens (e.g., "Hello,!" -> ["Hello", ",", "!"])
-    // - Do NOT strip punctuation
-    let words = (raw.match(/\w+|[^\w\s]/g) || []).map(w => w.toLowerCase());
-
-    // Per-query counts (for the "Word Count" list)
-    const counts = {};
-    for (const w of words) {
-      // skip empty just in case
-      if (!w) continue;
-      counts[w] = (counts[w] || 0) + 1;
+    // F2: HTML escape for punctuation and special chars
+    function escapeHTML(s) {
+      return (s || "").replace(/[&<>"']/g, m => (
+        { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[m]
+      ));
     }
 
-    // Update global history only when there is at least one token
-    if (words.length > 0) {
-      for (const [w, c] of Object.entries(counts)) {
-        historyCounts[w] = (historyCounts[w] || 0) + c;
-      }
+    // F5: Load & save history in sessionStorage
+    function loadHistory() {
+      try { return JSON.parse(sessionStorage.getItem("historyCounts") || "{}"); }
+      catch { return {}; }
+    }
+    function saveHistory(hist) {
+      sessionStorage.setItem("historyCounts", JSON.stringify(hist));
     }
 
-    // Build Top-20 from global history (always render it, even on empty input)
-    const top20 = Object.entries(historyCounts)
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 20);
-    const top20Total = top20.reduce((s, [, c]) => s + c, 0);
-
-    // ----- Render -----
-    let html = "";
-    html += `<p>Search for: "${escapeHTML(query)}"</p>`;
-
-    // Word Count block: if no words (empty/whitespace input), keep the section minimal
-    html += `<h3>Word Count</h3>`;
-    if (words.length === 0) {
-      html += `<p><strong>Total words:</strong> 0</p>`;
-    } else {
-      html += `<p><strong>Total words:</strong> ${words.length}</p><ul>`;
-      for (const [w, c] of Object.entries(counts)) {
-        html += `<li>${escapeHTML(w)}: ${c}</li>`;
+    // F5: Build table rows, each entry is word, count
+    function buildRows(pairs) {
+      let html = "";
+      for (const [w, c] of pairs) {
+        html += `<tr><td>${escapeHTML(String(w))}</td><td>${escapeHTML(String(c))}</td></tr>`;
       }
-      html += `</ul>`;
+      return html;
     }
 
-    // Top-20 history (never hide on empty input)
-    html += `<h3>Top 20 Keywords (since server launched)</h3>`;
-    if (top20.length === 0) {
-      html += `<p>No history yet.</p>`;
-    } else {
-      html += `<ul>`;
-      for (const [w, c] of top20) {
-        html += `<li>${escapeHTML(w)}: ${c}</li>`;
+    // F5: Analyze URL GET arguments and render results at the root path
+    document.addEventListener("DOMContentLoaded", () => {
+      const params = new URLSearchParams(window.location.search);
+      const raw = params.get("keywords") || "";
+      document.getElementById("keywords").value = raw;      // keep input filled so after refresh user could still see their
+
+      const tokens = (raw.match(/\w+|[^\w\s]/g) || []).map(t => t.toLowerCase()); // F2: count punctuation as words
+      const counts = {};
+      for (const t of tokens) {
+        if (!t) continue;
+        counts[t] = (counts[t] || 0) + 1;
       }
-      html += `</ul>`;
+
+      // Update global history only if there is at least one token
+      const historyCounts = loadHistory();
+      if (tokens.length > 0) {
+        for (const [w, c] of Object.entries(counts)) {
+          historyCounts[w] = (historyCounts[w] || 0) + c;
+        }
+        saveHistory(historyCounts);
+      }
+
+      // F4: Top-20 history (descending)
+      const top20 = Object.entries(historyCounts).sort((a,b) => b[1]-a[1]).slice(0, 20);
+      const top20Total = top20.reduce((s, [,c]) => s + c, 0);
+
+      // F5: Render EXACT tables as required
+      let html = "";
+      html += `<p>Search for: "${escapeHTML(raw.trim())}"</p>`;
+
+      // F5 and F2: results table (name="results")
+      html += `<h3>Word Count</h3>`;
+      html += `<p><strong>Total words:</strong> ${tokens.length}</p>`;
+      html += `<table id="results" name="results">`;
+      html += buildRows(Object.entries(counts));
+      html += `</table>`;
+
+      // F5: history table (name="history")
+      html += `<h3>Top 20 Keywords (since server launched)</h3>`;
+      html += `<table id="history" name="history">`;
+      html += buildRows(top20);
+      html += `</table>`;
       html += `<p><strong>Total searches for these Top-20 words:</strong> ${top20Total}</p>`;
-    }
 
-    document.getElementById("result").innerHTML = html;
-  });
-</script>
-
+      document.getElementById("result").innerHTML = html;
+    });
+  </script> 
 </body>
 </html>
