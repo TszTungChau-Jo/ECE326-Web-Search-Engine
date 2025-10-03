@@ -49,11 +49,14 @@ class crawler(object):
         and with the file containing the list of seed URLs to begin indexing."""
         self._url_queue = []       # Queue of URLs to crawl
         self._doc_id_cache = {}    # map<String, Integer>: "url" -> doc_id
+                                   # All URLs the crawler has ever seen (seed + discovered)
         self._word_id_cache = {}   # The lexicon map<String, Integer>: "word" -> word_id
+                                   
 
         # Newly added data structures
         self._doc_index = {}       # map<Integer, Dict<String, str>>: 
                                    # doc_id -> {"url": str, "title": str, "desc": str}
+                                   # Only URLs the crawler has actually visited and processed
         self._inverted_index = {}  # map<Integer, Integer>: word_id -> set(int doc_id)
 
         # functions to call when entering and exiting specific tags
@@ -370,14 +373,48 @@ class crawler(object):
 
     # Required function 1:
     def get_inverted_index(self):
+        """Get the inverted index with word ids mapping to the corresponding document id."""
         # todo: return a map of word_id -> set(doc_ids)
-        return {wid: set(doc_ids) for wid, doc_ids in self._inverted_index.items()}
-    
+        return {wid: set(doc_ids) for wid, doc_ids in self._inverted_index.items()}   # to return a shallow copy
+        # return self._inverted_index
 
     # Required function 2:
     def get_resolved_inverted_index(self):
+        """Get the inverted index with words."""
         # todo: return a map of words -> set(urls)
-        pass
+        # 1) create a reverse map of word_id -> word and doc_id -> url
+        id_to_word = {wid: word for word, wid in self._word_id_cache.items()}
+        id_to_url = {doc_id: meta["url"] for doc_id, meta in self._doc_index.items()}
+        
+        # equivalently (above two dict comprehensions)
+        # id_to_word = {}
+        # for word, wid in self._word_id_cache.items():
+        #     id_to_word[wid] = word
+        # id_to_url = {}
+        # for doc_id, meta in self._doc_index.items():
+        #     id_to_url[doc_id] = meta["url"]
+
+        # 2) build the resolved inverted index
+        resolved_index = {}
+        for wid, doc_ids in self._inverted_index.items():
+            word = id_to_word.get(wid)
+            
+            if not word:
+                continue
+            
+            urls = {id_to_url[doc_id] for doc_id in doc_ids if doc_id in id_to_url}
+            # equivalently (above set comprehension)
+            # urls = set()
+            # for doc_id in doc_ids:
+            #     if doc_id in id_to_url:
+            #         urls.add(id_to_url[doc_id])
+
+            
+            if urls:
+                resolved_index[word] = urls
+
+        return resolved_index
+
 
 
 if __name__ == "__main__":
@@ -408,7 +445,12 @@ if __name__ == "__main__":
         print(wid, "->", sorted(doc_ids))
 
     # get inverted index using required function
-    print("\nInverted Index from get_inverted_index():")
-    inverted_index = bot.get_inverted_index()
-    print("Inverted Index:", inverted_index)
+    # print("\nInverted Index from get_inverted_index():")
+    # inverted_index = bot.get_inverted_index()
+    # print("Inverted Index:", inverted_index)
 
+    resolved = bot.get_resolved_inverted_index()
+    print("\nResolved Inverted Index (sample):")
+    # for w in list(sorted(resolved))[:10]:
+    #     print(w, "->", sorted(resolved[w]))
+    print(resolved)
