@@ -12,7 +12,7 @@ Meowgle ('Meow' + Google)
 
 ### Our logo
 ![Meowgle log](img/logo-png.png)
-![Meowgle logo](Asset/design.png)
+![Meowgle logo](img/design.png)
 
 ### How to run the front end
 python -m http.server 8000
