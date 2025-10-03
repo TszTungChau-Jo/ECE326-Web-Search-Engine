@@ -1,0 +1,125 @@
+/* General page style */
+body {
+  font-family: "Comic Sans MS", "Trebuchet MS", Arial, sans-serif;
+  background-color: #fffaf0;  
+  color: #4b3832;             
+  text-align: center;
+  margin-top: 50px;
+}
+
+h1 {
+  font-family: "Comic Sans MS", "Trebuchet MS", "Arial Rounded MT Bold", sans-serif;
+}
+
+
+/* Main title */
+h1 {
+  color: #d35400;           
+  font-size: 2.8em;
+  text-shadow: 2px 2px #f6e0b5; 
+}
+
+/* Style for the top logo */
+.logo {
+  display: block;
+  margin: 0 auto 10px;  
+  width: 900px;         
+  max-width: 40%;        
+  border-radius: 20px;     
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);  
+  padding: 10px;   
+  background-color: #f1948a; 
+}
+
+
+
+
+html, body, * {
+  cursor: url("img/Cat_.png") 16 16, auto;
+}
+
+input[type="text"] {
+  cursor: text !important;
+}
+
+/* Press button */
+button:active {
+  transform: scale(0.95);
+}
+
+/* Subtitle text */
+p {
+  color: #7f8c8d;
+  font-style: italic;
+}
+
+/* Form container */
+form {
+  margin: 20px auto;
+}
+
+/* Search input box */
+input[type="text"] {
+  padding: 10px;
+  font-size: 1em;
+  border: 2px solid #f5b7b1;   
+  border-radius: 20px;         
+  width: 280px;
+  background-color: #fff;
+}
+
+/* Search button */
+button {
+  padding: 10px 18px;
+  font-size: 1em;
+  border: none;
+  border-radius: 20px;
+  background-color: #f1948a;  
+  color: white;
+  cursor: pointer;
+  margin-left: 8px;
+  transition: 0.3s;
+}
+
+/* Hover effect for button */
+button:hover {
+  background-color: #cd6155;  
+}
+
+
+table {
+  margin: 25px auto;
+  border-collapse: collapse;
+  width: 65%;
+  background-color: #fffdf8;
+  border-radius: 12px;         
+  overflow: hidden;
+  box-shadow: 2px 2px 8px rgba(0,0,0,0.1); 
+}
+
+/* Table cells and headers */
+td, th {
+  border: 1px solid #f5cba7;   
+  padding: 10px 14px;
+}
+
+/* Table header style */
+th {
+  background-color: #fad7a0;   
+  color: #4b3832;
+  font-weight: bold;
+}
+
+/* Table caption */
+caption {
+  margin-bottom: 10px;
+  font-weight: bold;
+  color: #d35400;
+  font-size: 1.2em;
+}
+
+/* Highlight text (e.g. total words) */
+mark {
+  background-color: #f9e79f;   
+  border-radius: 4px;
+}
