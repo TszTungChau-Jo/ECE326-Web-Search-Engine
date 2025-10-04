@@ -14,7 +14,7 @@ Meowgle ('Meow' + Google)
 ![Meowgle log](img/logo-png.png)
 ![Meowgle logo](img/design.png)
 
-### How to run the front end
+## How to run the front end
 python -m http.server 8000
 
 Then open http://localhost:8000/ locally
@@ -25,3 +25,15 @@ Then open http://localhost:8000/ locally
 img: Stores all images needed; Our logo, cursor, and web picture.
 
 Important file for frontend: index.html, style.css, img, HelloWorld.py
+
+## Backend Design
+
+### Data Structures
+
+
+### Functionality: get_inverted_index()
+
+
+### Functionality: get_resolved_inverted_index()
+
+
