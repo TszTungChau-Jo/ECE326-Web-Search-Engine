@@ -390,12 +390,12 @@ class crawler(object):
     def get_inverted_index(self):
         """Get the inverted index with word ids mapping to the corresponding document id. Return a map of word_id -> set(doc_ids)"""
         # return a shallow copy of the inverted index
-        return {wid: set(doc_ids) for wid, doc_ids in self._inverted_index.items()}   # to return a shallow copy
-        # return self._inverted_index
+        return {wid: set(doc_ids) for wid, doc_ids in self._inverted_index.items()}
 
     # LAB 1: Required function 2 - build a resolved inverted index
     def get_resolved_inverted_index(self):
         """Get the inverted index with words. Return a map of words -> set(urls)"""
+        
         # 1) create a reverse map of word_id -> word and doc_id -> url
         id_to_word = {wid: word for word, wid in self._word_id_cache.items()}
         id_to_url = {doc_id: meta["url"] for doc_id, meta in self._doc_index.items()}
