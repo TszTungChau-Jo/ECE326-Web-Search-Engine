@@ -53,7 +53,7 @@ class crawler(object):
         self._word_id_cache = {}   # The lexicon map<String, Integer>: "word" -> word_id
                                    
 
-        # LAB 1% Newly added data structures
+        # LAB 1: Newly added data structures
         self._doc_index = {}       # map<Integer, Dict<String, str>>: 
                                    # doc_id -> {"url": str, "title": str, "desc": str}
                                    # Only URLs the crawler has actually visited and processed
@@ -196,7 +196,7 @@ class crawler(object):
         # TODO update document title for document id self._curr_doc_id
         # save the document title to the doc index for this page
 
-        # LAB 1% save title to _doc_index
+        # LAB 1: save title to _doc_index
         if self._curr_doc_id in self._doc_index:
             self._doc_index[self._curr_doc_id]["title"] = title_text
 
@@ -224,7 +224,7 @@ class crawler(object):
         #       font sizes (in self._curr_words), add all the words into the
         #       database for this document
 
-        # LAB 1% ignore databse connection from now
+        # LAB 1: ignore databse connection from now
         # focusing on building the inverted index and doc index in memory
 
         # 1) check if no words found
@@ -322,6 +322,16 @@ class crawler(object):
             # text (text, cdata, comments, etc.)
             else:
                 self._add_text(tag)
+    
+    def _extract_description(self, soup, max_lines=3):
+        """Extract first few lines of text from the page."""
+        texts = []
+        for text in soup.stripped_strings:
+            if len(texts) >= max_lines:
+                break
+            if text and text not in self._ignored_words:
+                texts.append(text)
+        return " ".join(texts)[:200]  # Limit length
 
     def crawl(self, depth=2, timeout=3):
         """Crawl the web!"""
@@ -343,7 +353,7 @@ class crawler(object):
 
             seen.add(doc_id)  # mark this document as haven't been visited
             
-            # LAB 1% Initialize a new _doc_index entry for this document(url)
+            # LAB 1: Initialize a new _doc_index entry for this document(url)
             self._doc_index[doc_id] = {
                 "url": url,
                 "title": "",
@@ -361,6 +371,9 @@ class crawler(object):
                 self._font_size = 0
                 self._curr_words = []
                 self._index_document(soup)
+                # LAB 1: extract description and save to _doc_index
+                desc = self._extract_description(soup)
+                self._doc_index[doc_id]["desc"] = desc  # save description to doc index
                 self._add_words_to_document()
                 print("    url=" + repr(self._curr_url))
 
@@ -373,17 +386,16 @@ class crawler(object):
                     socket.close()
 
 
-    # LAB 1% Required function 1:
+    # LAB 1: Required function 1
     def get_inverted_index(self):
         """Get the inverted index with word ids mapping to the corresponding document id. Return a map of word_id -> set(doc_ids)"""
-        # LAB 1% return a shallow copy of the inverted index
+        # return a shallow copy of the inverted index
         return {wid: set(doc_ids) for wid, doc_ids in self._inverted_index.items()}   # to return a shallow copy
         # return self._inverted_index
 
-    # LAB 1% Required function 2:
+    # LAB 1: Required function 2 - build a resolved inverted index
     def get_resolved_inverted_index(self):
         """Get the inverted index with words. Return a map of words -> set(urls)"""
-        # LAB 1% build a resolved inverted index
         # 1) create a reverse map of word_id -> word and doc_id -> url
         id_to_word = {wid: word for word, wid in self._word_id_cache.items()}
         id_to_url = {doc_id: meta["url"] for doc_id, meta in self._doc_index.items()}
