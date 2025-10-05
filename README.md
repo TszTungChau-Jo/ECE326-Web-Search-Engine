@@ -1,5 +1,5 @@
 # ECE326-Web-Search-Engine
-A web search engine that resembles the Google search engine. 
+A [web search engine](https://github.com/TszTungChau-Jo/ECE326-Web-Search-Engine) that resembles the Google search engine.
 
 Author: Joshua Chau, Lynne Liu
 
