@@ -32,7 +32,7 @@ Important file for frontend: index.html, style.css, img, HelloWorld.py
 ### Overview
 The backend extends on the given web crawler starter to index web pages and build an inverted index for efficient keyword search. The crawler visits URLs, extracts content, and maintains data structures that map words to the documents containing them.
 
-### Data Structures
+### Main Data Structures
 
 **1. Document Index (`_doc_index`)**
 - **Type:** `dict[int, dict[str, str]]`
@@ -79,18 +79,7 @@ The backend extends on the given web crawler starter to index web pages and buil
 - **Purpose:** Prevents duplicate crawling by tracking all seen URLs
 - **Structure:** url → doc_id
 
-### Key Features
-
-**Ignored Words Filtering**
-Common words (the, of, and, etc.) are filtered out during indexing to reduce noise and improve search relevance.
-
-**Ignored Tags**
-HTML tags like `<script>`, `<style>`, `<meta>` are ignored to focus on actual content.
-
-**Description Extraction**
-The first 3 lines of text from each page are stored as a description (limited to 200 characters).
-
-### Functionality: get_inverted_index()
+### Required Functionality 1: get_inverted_index()
 
 **Purpose:** Returns the inverted index with word IDs and document IDs
 
@@ -109,7 +98,7 @@ index = bot.get_inverted_index()
 # Returns: {1: {1, 2}, 2: {1, 3}, ...}
 ```
 
-### Functionality: get_resolved_inverted_index()
+### Required Functionality 2: get_resolved_inverted_index()
 
 **Purpose:** Returns the inverted index with actual words and URLs instead of IDs
 
