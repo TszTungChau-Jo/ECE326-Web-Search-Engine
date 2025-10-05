@@ -15,7 +15,9 @@ Meowgle ('Meow' + Google)
 ![Meowgle logo](img/design.png)
 
 ## How to run the front end
+```
 python -m http.server 8000
+```
 
 Then open http://localhost:8000/ locally
 
