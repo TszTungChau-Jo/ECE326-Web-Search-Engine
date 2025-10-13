@@ -14,4 +14,4 @@ session = boto3.Session(
 # Create EC2 client and test connection
 ec2 = session.client("ec2")
 regions = [r["RegionName"] for r in ec2.describe_regions()["Regions"]]
-print("Connected! Example region:", regions[0]) # prints the first region from that list
+print("Connected! Example regions:", regions[:3]) # prints the first three regions from that list
