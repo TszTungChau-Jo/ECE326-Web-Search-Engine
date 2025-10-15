@@ -22,11 +22,12 @@
   <p style="color:gray;">A simple search engine for fun!</p>
 
   <!-- F5 and F1: GET at root, input name MUST be "keywords" and type MUST be "text" -->
-  <form id="searchForm" method="get" action="/">
+  <form id="searchForm" method="get" action="/" accept-charset="UTF-8">
     <input id="keywords" name="keywords" type="text" placeholder="Type your search here" size="40">
     <button type="submit">Search</button>
   </form>
 
+  <div id="userHistorySlot"></div>   <!-- NEW: signed-in history table will be inserted here -->
   <div id="result"></div>
 
   <!-- JS Script -->
@@ -101,7 +102,28 @@
       html += `<p><strong>Total searches for these Top-20 words:</strong> ${top20Total}</p>`;
 
       document.getElementById("result").innerHTML = html;
+
+      fetch("/api/history")
+      .then(r => (r.ok ? r.json() : null))
+      .then(data => {
+        if (!data || !data.history) return; 
+        const rows = data.history.map((w, i) =>
+          `<tr><td>${escapeHTML(String(w))}</td></tr>`).join("");
+
+        const histHTML = `
+          <h3>Your Recent 10 Searches</h3>
+          <table id="user_history" name="user_history">
+            ${rows}
+          </table>
+        `;
+
+        document.getElementById("userHistorySlot").innerHTML = histHTML;
+      })
+      .catch(() => { /* ignore */ });
     });
+
+
+
   </script> 
 </body>
 </html>
