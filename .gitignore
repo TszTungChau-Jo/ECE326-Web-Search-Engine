@@ -1,38 +1,63 @@
-# Byte-compiled / cache files
+# ------------------------------
+# Python / Virtual Environment
+# ------------------------------
 __pycache__/
 *.py[cod]
 *$py.class
 
-# Virtual environment
 .venv/
 env/
 venv/
 .env
 *.pem
 
-# Distribution / packaging
+# ------------------------------
+# Distribution / Packaging
+# ------------------------------
 build/
 dist/
 *.egg-info/
 
-# Test / coverage reports
+# ------------------------------
+# Test / Coverage
+# ------------------------------
 .coverage
 .pytest_cache/
 htmlcov/
 
-# IDE / editor files
+# ------------------------------
+# IDE / Editor
+# ------------------------------
 .vscode/
 .idea/
 *.swp
 *.swo
 
-# OS files
+# ------------------------------
+# OS / System
+# ------------------------------
 .DS_Store
 Thumbs.db
 
-# Application-specific files
+# ------------------------------
+# Application-Specific (ECE326)
+# ------------------------------
 history.json
 users.json
-
-# Session or cache data (runtime)
 sessions/
+aws_operations_cache/
+
+# ------------------------------
+# AWS / Cloud / Credentials
+# ------------------------------
+*.pem
+*.key
+*.crt
+*.csr
+*.log
+*.out
+aws_scripts/last_instance.json
+
+# Optional: ignore bootstrap artifacts or generated setup files
+cloud-init-output.log
+bootstrap.log

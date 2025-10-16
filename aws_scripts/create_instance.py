@@ -73,7 +73,7 @@ apt-get update -y && apt-get install -y git
 cd /home/ubuntu
 # clone once; safe if it already exists
 sudo -u ubuntu git clone https://github.com/TszTungChau-Jo/ECE326-Web-Search-Engine.git || true
-# run your bootstrap (keeps app on localhost:8080 for SSH tunneling)
+# run your bootstrap to set up the instance
 chmod +x /home/ubuntu/ECE326-Web-Search-Engine/aws_scripts/bootstrap.sh
 sudo -u ubuntu bash /home/ubuntu/ECE326-Web-Search-Engine/aws_scripts/bootstrap.sh
 """
