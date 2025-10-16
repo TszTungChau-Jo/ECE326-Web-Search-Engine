@@ -1,7 +1,7 @@
 # create_instance.py — with concise UserData calling your bootstrap.sh
 import pathlib
 import boto3, botocore
-from env_utils import get_env_var
+from env_utils import get_env_var, upsert_env_var, write_instance_manifest
 
 # --- Env ---
 AWS_ACCESS_KEY_ID     = get_env_var("AWS_ACCESS_KEY_ID")
@@ -79,20 +79,41 @@ sudo -u ubuntu bash /home/ubuntu/ECE326-Web-Search-Engine/aws_scripts/bootstrap.
 """
     )
 
+    # Wait until running
     instance = instances[0]
     print(f"Created instance: {instance.id}")
     print("Waiting for 'running' ...")
     instance.wait_until_running()
     instance.reload()
 
+    # Fetch key details
     ip   = instance.public_ip_address
     dns  = instance.public_dns_name
     state= instance.state["Name"]
-    print("\n=== Instance ready ===")
-    print(f"State:      {state}")
-    print(f"Public IP:  {ip}")
-    print(f"Public DNS: {dns}")
+    
+    # Save core info to .env
+    upsert_env_var("ECE326_INSTANCE_ID", instance.id)
+    upsert_env_var("ECE326_PUBLIC_IP", ip or "")
+    upsert_env_var("ECE326_PUBLIC_DNS", dns or "")
+    upsert_env_var("ECE326_STATE", state or "")
 
+    # Save richer manifest
+    manifest = {
+        "instance_id": instance.id,
+        "region": AWS_REGION,
+        "state": state,
+        "public_ip": ip,
+        "public_dns": dns,
+        "launch_time": getattr(instance, "launch_time", None).isoformat() if getattr(instance, "launch_time", None) else None,
+        "tags": instance.tags,
+        "key_name": KEY_NAME,
+        "security_group": {"name": SG_NAME, "id": sg_id},
+        "ami_id": AMI_ID,
+        "instance_type": INSTANCE_TYPE,
+    }
+    write_instance_manifest(manifest)
+    print("\nInstance info saved to .env and last_instance.json\n")
+    
     # SSH/SCP helpers (Ubuntu AMIs default to user 'ubuntu')
     print("\nSSH (direct):")
     print(f'  ssh -i "{PEM_PATH}" ubuntu@{ip}')
