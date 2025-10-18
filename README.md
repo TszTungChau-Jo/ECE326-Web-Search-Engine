@@ -14,7 +14,86 @@ Meowgle ('Meow' + Google)
 ![Meowgle log](img/logo-png.png)
 ![Meowgle logo](img/design.png)
 
-## How to run the front end
+## LAB2: Frontend
+
+
+## LAB2: Backend
+
+
+## LAB2: Benchmark Setup
+
+### Environment
+- **Client machine:** Local WSL2 terminal (Ubuntu on Windows 11) — used to send ApacheBench requests  
+- **Server machine:** AWS EC2 `t3.micro` instance (1 vCPU, 1 GiB RAM, 8 GB EBS root volume)  
+- **OS:** Ubuntu 22.04 LTS  
+- **App:** Bottle web server (`WSGIServer/0.2`) serving the `/` endpoint in anonymous mode  
+- **Benchmark tools used:**
+  - `ab` (ApacheBench) — measure throughput, latency, and concurrency  
+  - `dstat -cdnm 1` — monitor CPU, disk I/O, network, and memory utilization  
+
+---
+
+### Network Setup
+The client connects to the EC2 server using an **SSH tunnel** that forwards port 8080 from the remote instance to the local machine.  
+This allows ApacheBench on the local computer to benchmark `http://localhost:8080` as if the web app were running locally.
+
+**Command (run on local machine):**
+```bash
+ssh -i ~/.ssh/ece326-group3-joshua-key.pem \
+    -o IdentitiesOnly=yes -o ExitOnForwardFailure=yes \
+    -N -f -L 8080:localhost:8080 ubuntu@3.87.252.156
+```
+
+Explanation:
+
+* -i ~/.ssh/ece326-group3-joshua-key.pem → specify private key
+
+* -L 8080:localhost:8080 → forward local 8080 to remote 8080
+
+* -N → no remote command (tunnel only)
+
+* -f → run in background
+
+* -o ExitOnForwardFailure=yes → exit if tunnel cannot be established
+
+After running this, the web app hosted on the EC2 instance (port 8080) becomes accessible from http://localhost:8080 on the local machine.
+
+Benchmark Procedure
+1. Launch the server on the EC2 instance
+
+```bash
+python3 main.py
+```
+2. On the local machine, open the SSH tunnel (command above).
+
+3. Run ApacheBench load tests from local terminal:
+
+```bash
+for c in 10 12 15 18 20 22 23 24 25 26 28 30; do
+  echo "=== concurrency $c ==="
+  ab -n 10000 -c $c http://localhost:8080/ | tee ab_c${c}_10k.log
+done
+```
+
+4. Identify maximum concurrency before drops (c = 28), then run a sustained load test:
+
+```bash
+ab -n 20000 -c 28 http://localhost:8080/ | tee ab_max2.log
+```
+
+5. Monitor resource utilization on the EC2 instance (in another SSH session):
+
+```bash
+dstat -cdnm 1 | tee dstat.log
+```
+
+6. Stop the tunnel after testing:
+
+```bash
+pkill -f "ssh.*8080:localhost:8080"
+```
+
+## LAB1: How to run the front end
 ```
 python -m http.server 8000
 ```
@@ -29,7 +108,7 @@ img: Stores all images needed; Our logo, cursor, and web picture.
 Important file for frontend: index.html, style.css, img, HelloWorld.py
 
 
-## Backend Design
+## LAB1: Backend Design
 
 ### Overview
 The backend extends on the given web crawler starter to index web pages and build an inverted index for efficient keyword search. The crawler visits URLs, extracts content, and maintains data structures that map words to the documents containing them.
