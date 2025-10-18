@@ -16,6 +16,25 @@ Meowgle ('Meow' + Google)
 
 ## LAB2: Frontend
 
+### How to run
+Open up the Terminal, enter the following:
+```
+python Lab2_F.py
+```
+Hit Enter. 
+
+Open up your web browser, enter the following in the address:
+```
+http://localhost:8080
+```
+
+### Functionalities
+1. Google Authorizer to allow users to sign in Google accounts and enter the web page with their histories (including top 10 searched).
+   - New features:
+     - Top 10 searched sentences are stored
+     - Allow a signed-in user to open up the web page with the corresponding searching history on different devices
+     - Allow the user to sign in using a Google account
+3. An anonymous web page view is set up if the user doesn't want to sign in. This way, stored history will be cleaned once the anonymous user exits the web page. 
 
 ## LAB2: Backend
 
