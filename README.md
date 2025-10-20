@@ -37,24 +37,69 @@ http://localhost:8080
 3. An anonymous web page view is set up if the user doesn't want to sign in. This way, stored history will be cleaned once the anonymous user exits the web page. 
 
 ## LAB2: Backend
+All scripts below are located in the `root/aws_acripts/` and were developed for ECE326 Lab 2 to automate EC2 lifecycle management, and some helper scripts for SSH setup or setup on the ec2 instance.
 
-
-## LAB2: Benchmark Setup
-
-### Environment
-- **Client machine:** Local WSL2 terminal (Ubuntu on Windows 11) — used to send ApacheBench requests  
-- **Server machine:** AWS EC2 `t3.micro` instance (1 vCPU, 1 GiB RAM, 8 GB EBS root volume)  
-- **OS:** Ubuntu 22.04 LTS  
-- **App:** Bottle web server (`WSGIServer/0.2`) serving the `/` endpoint in anonymous mode  
-- **Benchmark tools used:**
-  - `ab` (ApacheBench) — measure throughput, latency, and concurrency  
-  - `dstat -cdnm 1` — monitor CPU, disk I/O, network, and memory utilization  
+| File | Description |
+|------|--------------|
+| **`create_keypair.py`** | Creates a new AWS EC2 key pair using Boto3 and saves it as a `.pem` file for SSH access. |
+| **`setup_security_group.py`** | Creates and configures a security group (`ece326-group3`) with inbound rules for SSH (22), HTTP (80), and ICMP (ping). |
+| **`create_instance.py`** | Launches a new EC2 instance using a specified Ubuntu AMI, associates key pair and security group, and writes the instance ID and IP to `.env`. |
+| **`list_instances.py`** | Lists all EC2 instances along with their state, type, and IP information for quick status checking. |
+| **`start_instance.py`** | Starts a stopped EC2 instance defined in the `.env` file and refreshes the instance status. |
+| **`stop_instance.py`** | Gracefully stops the running instance to avoid unnecessary compute charges while preserving data. |
+| **`terminate_instance.py`** | Permanently terminates the EC2 instance and removes its EBS volume — irreversible. |
+| **`reboot_instance.py`** | Performs a soft reboot of the instance (useful for applying configuration changes). |
+| **`refresh_instance_info.py`** | Updates `.env` with the latest instance state and public IP after start/stop operations. |
+| **`generate_ssh_helpers.py`** | Automatically generates reusable SSH and SCP helper commands for the active instance. |
+| **`test_connection.py`** | Pings the EC2 instance and tests SSH connectivity using the stored key and IP to verify accessibility. |
+| **`env_utils.py`** | Central utility for reading/writing environment variables (`.env`) and handling configuration consistency. |
+| **`bootstrap.sh`** | Shell script to initialize the EC2 environment (install dependencies, update system packages, etc.) after instance creation. |
 
 ---
 
-### Network Setup
-The client connects to the EC2 server using an **SSH tunnel** that forwards port 8080 from the remote instance to the local machine.  
-This allows ApacheBench on the local computer to benchmark `http://localhost:8080` as if the web app were running locally.
+### Important Notes
+- Currently, we only support managin one ec2 instance at a time.
+- All scripts rely on environment variables managed through **`.env`** (e.g., `AWS_REGION`, `ECE326_INSTANCE_ID`, `KEY_PAIR_NAME`).
+
+---
+
+## LAB2: Benchmarking
+
+### Resulting Files and Result
+The resulting log files are stored inside `root/benchmark_results/`.
+(I mistakenly deleted some of them, but the major ones are inside it.)
+
+#### 1. Maximum Number of Connections
+- **Max stable concurrency:** 28 (no failed requests at `n=10,000`)
+- **Next level:** 30 (timed out after completing 9,978/10,000 requests)
+
+#### 2. Maximum Sustained Throughput (at c=28)
+- **Requests per second (mean):** 154.94 req/s  
+- **Total requests:** 20,000  
+- **Failed requests:** 0  
+
+#### 3. Latency (at c=28)
+- **Average (mean):** 180.712 ms  
+- **99th percentile:** 1318 ms  
+
+#### 4. Resource Utilization (measured via `dstat -cdnm 1`)
+| Metric | Observation |
+|--------|--------------|
+| **CPU** | ~15–20% avg (peaks 25–44%), small `wai` (0–10%), occasional `stl` spikes |
+| **Memory** | ~230–245 MB used, ~390–430 MB cache, ~100–140 MB free; no swap pressure |
+| **Disk I/O** | Low (<1 MB/s), brief write bursts (16–60 MB/s) likely due to transient OS or logging activity |
+| **Network** | ~60–80 KB/s received, ~700–950 KB/s sent — consistent with expected throughput (~4.4 KB × 155 req/s ≈ 680 KB/s) |
+
+---
+
+**Summary:**  
+The Bottle web server running on a t3.micro EC2 instance handled up to **28 concurrent connections** stably, achieving **~155 requests per second** with **no failures** and maintaining low CPU/memory utilization throughout the test.  
+
+---
+
+### Benchmark Set Up: Creating A Tunnel
+The client connects to the EC2 server using an **SSH tunnel** that forwards port 8080 from the remote instance to the local machine. The `.pem` file is included in the `root/`, and the current public IP of the ec2 instance is `34.207.252.88`.
+To port forwarding to the ec2 instance: `ssh -i "ece326-group3-joshua-key.pem" -L 8080:localhost:8080 ubuntu@34.207.252.88`
 
 **Command (run on local machine):**
 ```bash
@@ -75,14 +120,11 @@ Explanation:
 
 * -o ExitOnForwardFailure=yes → exit if tunnel cannot be established
 
-After running this, the web app hosted on the EC2 instance (port 8080) becomes accessible from http://localhost:8080 on the local machine.
+After setting up the tunnel, the web app hosted on the EC2 instance (port 8080) should be accessible from http://localhost:8080 on the local machine.
 
 Benchmark Procedure
 1. Launch the server on the EC2 instance
 
-```bash
-python3 main.py
-```
 2. On the local machine, open the SSH tunnel (command above).
 
 3. Run ApacheBench load tests from local terminal:
