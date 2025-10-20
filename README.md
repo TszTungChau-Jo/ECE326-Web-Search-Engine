@@ -60,7 +60,7 @@ All scripts below are located in the `root/aws_acripts/` and were developed for 
 ### Important Notes
 - Currently, we only support managing one ec2 instance at a time.
 - All scripts rely on environment variables managed through **`.env`** (e.g., `AWS_REGION`, `ECE326_INSTANCE_ID`, `KEY_PAIR_NAME`).
-
+- In case any how the ec2 instance or anything goes wrong before you access our ec2 instane and server, I have tried to record a short demo (Google drive link: https://drive.google.com/file/d/1pqiri5SDwvzR84vxbMd43heXIINK4EBG/view?usp=sharing) as a backup. Thanks!
 ---
 
 ## LAB2: Benchmarking
