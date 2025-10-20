@@ -58,7 +58,7 @@ All scripts below are located in the `root/aws_acripts/` and were developed for 
 ---
 
 ### Important Notes
-- Currently, we only support managin one ec2 instance at a time.
+- Currently, we only support managing one ec2 instance at a time.
 - All scripts rely on environment variables managed through **`.env`** (e.g., `AWS_REGION`, `ECE326_INSTANCE_ID`, `KEY_PAIR_NAME`).
 
 ---
@@ -123,6 +123,9 @@ Explanation:
 After setting up the tunnel, the web app hosted on the EC2 instance (port 8080) should be accessible from http://localhost:8080 on the local machine.
 
 Benchmark Procedure
+
+0. Remeber to install the benchmarking tools (`apache2-utils`, `dstat`, ...) before doing the test.
+
 1. Launch the server on the EC2 instance
 
 2. On the local machine, open the SSH tunnel (command above).
